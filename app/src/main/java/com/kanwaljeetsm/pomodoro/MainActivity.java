@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
             btnStart = findViewById(R.id.btnStart);
 
             themeSettings();
+            txtTimer.setText("25:00");
 
             btnStart.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -76,11 +77,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         btnStart.setEnabled(false);
+                        txtTimer.setTextColor(getResources().getColor(R.color.blue));
                         CountDownTimer countDownTimer = new CountDownTimer(WORKTIME, 1000) {
                             @Override
                             public void onFinish() {
                                 timeLeftInMillis = BREAKTIME;
-
                                 txtTimer.setText(String.format(Locale.US,"%02d",timeLeftInMillis/60000) + ":" + String.format(Locale.US,"%02d",timeLeftInMillis%60000/1000));
                                 startBreakTimer();
                             }
@@ -107,10 +108,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         timeLeftInMillis = BREAKTIME;
+                        txtTimer.setTextColor(getResources().getColor(R.color.green));
                         CountDownTimer countDownTimer = new CountDownTimer(BREAKTIME, 1000) {
                             @Override
                             public void onFinish() {
                                 btnStart.setEnabled(true);
+                                txtTimer.setTextColor(getResources().getColor(R.color.blue));
                                 timeLeftInMillis = WORKTIME;
                                 txtTimer.setText(String.format(Locale.US,"%02d",timeLeftInMillis/60000) + ":" + String.format(Locale.US,"%02d",timeLeftInMillis%60000/1000));
                             }
