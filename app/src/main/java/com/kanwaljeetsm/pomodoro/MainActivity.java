@@ -1,5 +1,8 @@
 package com.kanwaljeetsm.pomodoro;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.content.res.Configuration;
 import android.os.Bundle;
 
@@ -32,10 +35,11 @@ public class MainActivity extends AppCompatActivity {
     private ImageView appDrawLogo;
     private ConstraintLayout main;
     private TextView txtTimer;
-    private Button btnStart;
+    private Button btnStart, btnEnd;
     private long timeLeftInMillis = 60000*25;
     private final long WORKTIME = 60000*25;
     private final long BREAKTIME = 60000*5;
+    private CountDownTimer countDownTimerWork, countDownTimerBreak;
 
 
     private boolean isDark;
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
             txtTimer = findViewById(R.id.txtTimer);
             main = findViewById(R.id.main);
             btnStart = findViewById(R.id.btnStart);
+            btnEnd = findViewById(R.id.btnEnd);
 
             themeSettings();
             txtTimer.setText("25:00");
@@ -60,6 +65,13 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     startWorkTimer();
+                }
+            });
+
+            btnEnd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    endSession();
                 }
             });
 
@@ -76,9 +88,10 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        btnStart.setEnabled(false);
+                        btnStart.setVisibility(GONE);
+                        btnEnd.setVisibility(VISIBLE);
                         txtTimer.setTextColor(getResources().getColor(R.color.blue));
-                        CountDownTimer countDownTimer = new CountDownTimer(WORKTIME, 1000) {
+                        countDownTimerWork = new CountDownTimer(WORKTIME, 1000) {
                             @Override
                             public void onFinish() {
                                 timeLeftInMillis = BREAKTIME;
@@ -107,12 +120,13 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        btnEnd.setVisibility(GONE);
                         timeLeftInMillis = BREAKTIME;
                         txtTimer.setTextColor(getResources().getColor(R.color.green));
-                        CountDownTimer countDownTimer = new CountDownTimer(BREAKTIME, 1000) {
+                        countDownTimerBreak = new CountDownTimer(BREAKTIME, 1000) {
                             @Override
                             public void onFinish() {
-                                btnStart.setEnabled(true);
+                                btnStart.setVisibility(VISIBLE);
                                 txtTimer.setTextColor(getResources().getColor(R.color.blue));
                                 timeLeftInMillis = WORKTIME;
                                 txtTimer.setText(String.format(Locale.US,"%02d",timeLeftInMillis/60000) + ":" + String.format(Locale.US,"%02d",timeLeftInMillis%60000/1000));
@@ -128,6 +142,13 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private void endSession() {
+        countDownTimerWork.cancel();
+        txtTimer.setText("25:00");
+        btnEnd.setVisibility(GONE);
+        btnStart.setVisibility(VISIBLE);
     }
 
     private void themeSettings() {
