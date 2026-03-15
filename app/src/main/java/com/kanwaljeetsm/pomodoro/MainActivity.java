@@ -3,10 +3,12 @@ package com.kanwaljeetsm.pomodoro;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -18,6 +20,9 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -163,5 +168,22 @@ public class MainActivity extends AppCompatActivity {
             appDrawLogo.setImageDrawable(getDrawable(R.drawable.drawpomo));
             main.setBackgroundColor(getColor(R.color.white));
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu); // Inflates your XML menu
+        return true; // Return true to display the menu
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here.
+        if (item.getItemId() == R.id.iconActivityHistory) {
+            Intent intent = new Intent(this, ActivityHistory.class);
+            startActivity(intent);
+            return true;
+        }
+        return true;
     }
 }
