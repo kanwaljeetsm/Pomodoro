@@ -5,6 +5,7 @@ import static android.view.View.VISIBLE;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -29,6 +30,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -41,8 +45,9 @@ public class MainActivity extends AppCompatActivity {
     private ConstraintLayout main;
     private TextView txtTimer;
     private Button btnStart, btnEnd;
+    private EditText edtSessionName;
     private long timeLeftInMillis = 60000*25;
-    private final long WORKTIME = 60000*25;
+    private final long WORKTIME = (60000*25);
     private final long BREAKTIME = 60000*5;
     private CountDownTimer countDownTimerWork, countDownTimerBreak;
 
@@ -62,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
             main = findViewById(R.id.main);
             btnStart = findViewById(R.id.btnStart);
             btnEnd = findViewById(R.id.btnEnd);
+            edtSessionName = findViewById(R.id.edtSessionName);
 
             themeSettings();
             txtTimer.setText("25:00");
@@ -102,6 +108,19 @@ public class MainActivity extends AppCompatActivity {
                                 timeLeftInMillis = BREAKTIME;
                                 txtTimer.setText(String.format(Locale.US,"%02d",timeLeftInMillis/60000) + ":" + String.format(Locale.US,"%02d",timeLeftInMillis%60000/1000));
                                 startBreakTimer();
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    HistoryStorage histObj = new HistoryStorage();
+                                    DataActivityHistory historyData = new DataActivityHistory();
+                                    historyData.setActivityDate(LocalDate.now());
+                                    historyData.setStartTime(LocalTime.now().minusMinutes(25));
+                                    historyData.setEndTime(LocalTime.now());
+                                        if(edtSessionName.getText().toString().isBlank()) {
+                                            historyData.setNotes(getResources().getString(R.string.strDefault));
+                                        } else {
+                                            historyData.setNotes(edtSessionName.getText().toString());
+                                        }
+                                    histObj.saveHistory(context, historyData);
+                                }
                             }
 
                             @Override

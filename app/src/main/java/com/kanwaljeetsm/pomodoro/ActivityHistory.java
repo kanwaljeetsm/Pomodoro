@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class ActivityHistory extends AppCompatActivity {
     private List<LocalTime> lstStartTime = new ArrayList<>();
     private List<LocalTime> lstEndTime = new ArrayList<>();
     private List<LocalDate> lstActivityDate = new ArrayList<>();
+    List<DataActivityHistory> historyList = Collections.emptyList();
     private Context context = ActivityHistory.this;
 
     @Override
@@ -38,22 +40,21 @@ public class ActivityHistory extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
 
-            recyclerActivityHistory = findViewById(R.id.recyclerActivityHistory);
-            recyclerActivityHistory.setHasFixedSize(true);
-            recyclerActivityHistory.setLayoutManager(new LinearLayoutManager(this));
+            // 1. Get the data from storage
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                historyList = HistoryStorage.loadHistory(this);
+            }
 
-            // 3. ADD DATA (Add this so you can see something!)
-//            lstNotes.add("Test Session");
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                lstStartTime.add(LocalTime.now());
-//                lstEndTime.add(LocalTime.now().plusMinutes(25));
-//                lstActivityDate.add(LocalDate.now());
-//            }
+            // 2. Initialize RecyclerView
+            RecyclerView recyclerView = findViewById(R.id.recyclerActivityHistory);
 
-            // 4. Set Adapter
-            recyclerAdapterActivityHistory = new RecyclerAdapterActivityHistory(this, lstActivityDate, lstStartTime, lstEndTime, lstNotes);
-            recyclerActivityHistory.setAdapter(recyclerAdapterActivityHistory);
+            // 3. Create and set the Adapter
+            RecyclerAdapterActivityHistory adapter = new RecyclerAdapterActivityHistory(this, lstActivityDate, lstStartTime, lstEndTime, lstNotes, historyList);
+            recyclerView.setAdapter(adapter);
 
+            // 4. Set the LayoutManager (Vertical list)
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            adapter.notifyDataSetChanged();
 
             return insets;
         });

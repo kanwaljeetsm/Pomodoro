@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Pomodoro</string>
+    <string name="strDate">Date:</string>
+    <string name="strStartTime">Start:</string>
+    <string name="strEndTime">End:</string>
+    <string name="strDefault">My Pomodoro Session</string>
+"
 </resources>
