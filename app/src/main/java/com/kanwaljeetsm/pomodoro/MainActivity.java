@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnStart, btnEnd;
     private EditText edtSessionName;
     private long timeLeftInMillis = 60000*25;
-    private final long WORKTIME = (60000*1);
+    private final long WORKTIME = (60000*25);
     private final long BREAKTIME = 60000*5;
     private CountDownTimer countDownTimerWork, countDownTimerBreak;
 
