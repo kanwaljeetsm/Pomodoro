@@ -26,6 +26,17 @@
             android:layout_marginEnd="40dp"
             app:srcCompat="@drawable/drawpomo" />
 
+        <EditText
+            android:id="@+id/edtSessionName"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ems="10"
+            android:gravity="center"
+            android:hint="My Pomodoro Session"
+            android:inputType="text"
+            android:maxLength="26" />
+
         <TextView
             android:id="@+id/txtTimer"
             android:layout_width="match_parent"
