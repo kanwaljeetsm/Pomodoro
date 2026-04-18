@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(isDark) {
             appDrawLogo.setImageDrawable(getDrawable(R.drawable.drawpomoblack));
-            main.setBackgroundColor(getColor(R.color.black));
+            main.setBackgroundColor(getColor(R.color.blackbg));
         } else {
             appDrawLogo.setImageDrawable(getDrawable(R.drawable.drawpomo));
             main.setBackgroundColor(getColor(R.color.white));
