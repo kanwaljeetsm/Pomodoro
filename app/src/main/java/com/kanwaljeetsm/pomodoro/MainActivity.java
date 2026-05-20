@@ -3,24 +3,16 @@ package com.kanwaljeetsm.pomodoro;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import android.content.Context;
-import android.content.res.Configuration;
-import android.os.CountDownTimer;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,14 +21,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,43 +43,60 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtTimer;
     private Button btnStart, btnEnd;
     private EditText edtSessionName;
-    private long timeLeftInMillis = 60000*25;
-    private final long WORKTIME = (60000*25);
-    private final long BREAKTIME = 60000*5;
-    private CountDownTimer countDownTimerWork, countDownTimerBreak;
-
 
     private boolean isDark;
+    private static final int PERMISSION_REQUEST_CODE = 100;
+
+    private final BroadcastReceiver timerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (TimerService.ACTION_TIMER_TICK.equals(action)) {
+                long timeLeft = intent.getLongExtra(TimerService.EXTRA_TIME_LEFT, 0);
+                String type = intent.getStringExtra(TimerService.EXTRA_TIMER_TYPE);
+                boolean isRunning = intent.getBooleanExtra(TimerService.EXTRA_IS_RUNNING, false);
+                
+                if (isRunning) {
+                    updateUI(timeLeft, type);
+                } else {
+                    resetUI();
+                }
+            } else if (TimerService.ACTION_TIMER_FINISHED.equals(action)) {
+                resetUI();
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        appDrawLogo = findViewById(R.id.appDrawLogo);
+        txtTimer = findViewById(R.id.txtTimer);
+        main = findViewById(R.id.main);
+        btnStart = findViewById(R.id.btnStart);
+        btnEnd = findViewById(R.id.btnEnd);
+        edtSessionName = findViewById(R.id.edtSessionName);
 
-            appDrawLogo = findViewById(R.id.appDrawLogo);
-            txtTimer = findViewById(R.id.txtTimer);
-            main = findViewById(R.id.main);
-            btnStart = findViewById(R.id.btnStart);
-            btnEnd = findViewById(R.id.btnEnd);
-            edtSessionName = findViewById(R.id.edtSessionName);
+        themeSettings();
+        txtTimer.setText("25:00");
 
-            themeSettings();
-            txtTimer.setText("25:00");
+        btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkPermissionAndStart();
+            }
+        });
 
-            btnStart.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    startWorkTimer();
-                }
-            });
+        btnEnd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopTimerService();
+            }
+        });
 
-            btnEnd.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    endSession();
-                }
-            });
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -90,97 +104,102 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void startWorkTimer() {
-        ExecutorService executor = AppExecutor.getExecutorService();
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                // To update the UI from a background thread, use a Handler or runOnUiThread()
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        btnStart.setVisibility(GONE);
-                        btnEnd.setVisibility(VISIBLE);
-                        txtTimer.setTextColor(getResources().getColor(R.color.blue));
-                        countDownTimerWork = new CountDownTimer(WORKTIME, 1000) {
-                            @Override
-                            public void onFinish() {
-                                timeLeftInMillis = BREAKTIME;
-                                txtTimer.setText(String.format(Locale.US,"%02d",timeLeftInMillis/60000) + ":" + String.format(Locale.US,"%02d",timeLeftInMillis%60000/1000));
-                                startBreakTimer();
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    HistoryStorage histObj = new HistoryStorage();
-                                    DataActivityHistory historyData = new DataActivityHistory();
-                                    historyData.setActivityDate(LocalDate.now());
-                                    historyData.setStartTime(LocalTime.now().minusMinutes(25));
-                                    historyData.setEndTime(LocalTime.now());
-                                        if(edtSessionName.getText().toString().isBlank()) {
-                                            historyData.setNotes(getResources().getString(R.string.strDefault));
-                                        } else {
-                                            historyData.setNotes(edtSessionName.getText().toString());
-                                        }
-                                    histObj.saveHistory(context, historyData);
-                                }
-                            }
-
-                            @Override
-                            public void onTick(long l) {
-                                timeLeftInMillis = l;
-                                txtTimer.setText(String.format(Locale.US,"%02d",timeLeftInMillis/60000) + ":" + String.format(Locale.US,"%02d",timeLeftInMillis%60000/1000));
-                            }
-                        }.start();
-                    }
-                });
+    private void checkPermissionAndStart() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
+            } else {
+                startTimerService();
             }
-        });
+        } else {
+            startTimerService();
+        }
     }
 
-    private void startBreakTimer() {
-        ExecutorService executor = AppExecutor.getExecutorService();
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                // To update the UI from a background thread, use a Handler or runOnUiThread()
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        btnEnd.setVisibility(GONE);
-                        timeLeftInMillis = BREAKTIME;
-                        txtTimer.setTextColor(getResources().getColor(R.color.green));
-                        countDownTimerBreak = new CountDownTimer(BREAKTIME, 1000) {
-                            @Override
-                            public void onFinish() {
-                                btnStart.setVisibility(VISIBLE);
-                                txtTimer.setTextColor(getResources().getColor(R.color.blue));
-                                timeLeftInMillis = WORKTIME;
-                                txtTimer.setText(String.format(Locale.US,"%02d",timeLeftInMillis/60000) + ":" + String.format(Locale.US,"%02d",timeLeftInMillis%60000/1000));
-                            }
-
-                            @Override
-                            public void onTick(long l) {
-                                timeLeftInMillis = l;
-                                txtTimer.setText(String.format(Locale.US,"%02d",timeLeftInMillis/60000) + ":" + String.format(Locale.US,"%02d",timeLeftInMillis%60000/1000));
-                            }
-                        }.start();
-                    }
-                });
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startTimerService();
+            } else {
+                Toast.makeText(this, "Notification permission is required for the timer to work in background", Toast.LENGTH_SHORT).show();
             }
-        });
+        }
     }
 
-    private void endSession() {
-        countDownTimerWork.cancel();
+    private void startTimerService() {
+        Intent intent = new Intent(this, TimerService.class);
+        intent.setAction("START_WORK");
+        intent.putExtra("SESSION_NAME", edtSessionName.getText().toString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+        btnStart.setVisibility(GONE);
+        btnEnd.setVisibility(VISIBLE);
+    }
+
+    private void stopTimerService() {
+        Intent intent = new Intent(this, TimerService.class);
+        intent.setAction("STOP_SERVICE");
+        startService(intent);
+        resetUI();
+    }
+
+    private void updateUI(long timeLeftInMillis, String type) {
+        txtTimer.setText(String.format(Locale.US, "%02d:%02d", timeLeftInMillis / 60000, (timeLeftInMillis % 60000) / 1000));
+        if (TimerService.TIMER_TYPE_WORK.equals(type)) {
+            txtTimer.setTextColor(getResources().getColor(R.color.blue));
+        } else {
+            txtTimer.setTextColor(getResources().getColor(R.color.green));
+        }
+        btnStart.setVisibility(GONE);
+        btnEnd.setVisibility(VISIBLE);
+    }
+
+    private void resetUI() {
         txtTimer.setText("25:00");
-        btnEnd.setVisibility(GONE);
+        txtTimer.setTextColor(isDark ? getResources().getColor(R.color.white) : getResources().getColor(R.color.black));
         btnStart.setVisibility(VISIBLE);
+        btnEnd.setVisibility(GONE);
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TimerService.ACTION_TIMER_TICK);
+        filter.addAction(TimerService.ACTION_TIMER_FINISHED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(timerReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(timerReceiver, filter);
+        }
+        
+        // Request status update from service after registering receiver to sync UI
+        Intent intent = new Intent(this, TimerService.class);
+        intent.setAction(TimerService.ACTION_REQUEST_STATUS);
+        startService(intent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            unregisterReceiver(timerReceiver);
+        } catch (Exception e) {
+            // Receiver not registered
+        }
     }
 
     private void themeSettings() {
-
         int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         isDark = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
 
-        if(isDark) {
+        if (isDark) {
             appDrawLogo.setImageDrawable(getDrawable(R.drawable.drawpomoblack));
             main.setBackgroundColor(getColor(R.color.blackbg));
         } else {
@@ -192,17 +211,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu); // Inflates your XML menu
-        return true; // Return true to display the menu
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
     }
 
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here.
         if (item.getItemId() == R.id.iconActivityHistory) {
             Intent intent = new Intent(this, ActivityHistory.class);
             startActivity(intent);
             return true;
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 }
