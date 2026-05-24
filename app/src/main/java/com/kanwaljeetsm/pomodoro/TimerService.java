@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
@@ -45,6 +46,7 @@ public class TimerService extends Service {
     private String currentTimerType = TIMER_TYPE_WORK;
     private String sessionName = "";
     private boolean isTimerRunning = false;
+    private MediaPlayer mediaPlayerSession, mediaPlayerBreak;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -74,6 +76,7 @@ public class TimerService extends Service {
         currentTimerType = TIMER_TYPE_WORK;
         timeLeftInMillis = WORK_TIME;
         isTimerRunning = true;
+        mediaPlayerSession = MediaPlayer.create(this, R.raw.sessioncomplete);
         
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, getNotification("Work Session Started"));
@@ -91,6 +94,7 @@ public class TimerService extends Service {
             public void onFinish() {
                 saveHistory();
                 startBreakTimer();
+                mediaPlayerSession.start();
             }
         }.start();
     }
@@ -100,6 +104,7 @@ public class TimerService extends Service {
         currentTimerType = TIMER_TYPE_BREAK;
         timeLeftInMillis = BREAK_TIME;
         isTimerRunning = true;
+        mediaPlayerBreak = MediaPlayer.create(this, R.raw.breakcomplete);
         
         startForeground(NOTIFICATION_ID, getNotification("Break Session Started"));
         sendStatusBroadcast(ACTION_TIMER_TICK);
@@ -122,6 +127,7 @@ public class TimerService extends Service {
                 sendBroadcast(intent);
                 stopForeground(true);
                 stopSelf();
+                mediaPlayerBreak.start();
             }
         }.start();
     }

@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtTimer;
     private Button btnStart, btnEnd;
     private EditText edtSessionName;
-
     private SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
     private boolean isDark;
