@@ -5,10 +5,12 @@ import static android.view.View.VISIBLE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -44,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private Button btnStart, btnEnd;
     private EditText edtSessionName;
 
+    private SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
     private boolean isDark;
     private static final int PERMISSION_REQUEST_CODE = 100;
 
@@ -51,11 +55,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (TimerService.ACTION_TIMER_TICK.equals(action)) {
+            if (TimerService.ACTION_TIMER_TICK.equals(action) || TimerService.ACTION_STATUS_RESPONSE.equals(action)) {
                 long timeLeft = intent.getLongExtra(TimerService.EXTRA_TIME_LEFT, 0);
                 String type = intent.getStringExtra(TimerService.EXTRA_TIMER_TYPE);
                 boolean isRunning = intent.getBooleanExtra(TimerService.EXTRA_IS_RUNNING, false);
-                
                 if (isRunning) {
                     updateUI(timeLeft, type);
                 } else {
@@ -79,6 +82,18 @@ public class MainActivity extends AppCompatActivity {
         btnStart = findViewById(R.id.btnStart);
         btnEnd = findViewById(R.id.btnEnd);
         edtSessionName = findViewById(R.id.edtSessionName);
+
+        sharedPref = getSharedPreferences("SessionName", Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+
+        if (isMyServiceRunning(TimerService.class)) {
+            btnStart.setVisibility(GONE);
+            btnEnd.setVisibility(VISIBLE);
+        }
+
+        if (btnEnd.getVisibility() == VISIBLE) {
+            edtSessionName.setText(sharedPref.getString("session_name", ""));
+        }
 
         themeSettings();
         txtTimer.setText("25:00");
@@ -148,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
         resetUI();
     }
 
-    private void updateUI(long timeLeftInMillis, String type) {
-        txtTimer.setText(String.format(Locale.US, "%02d:%02d", timeLeftInMillis / 60000, (timeLeftInMillis % 60000) / 1000));
+    private void updateUI(long timeLeft, String type) {
+        txtTimer.setText(String.format(Locale.US, "%02d:%02d", timeLeft / 60000, (timeLeft % 60000) / 1000));
         if (TimerService.TIMER_TYPE_WORK.equals(type)) {
             txtTimer.setTextColor(getResources().getColor(R.color.blue));
         } else {
@@ -173,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(TimerService.ACTION_TIMER_TICK);
         filter.addAction(TimerService.ACTION_TIMER_FINISHED);
+        filter.addAction(TimerService.ACTION_STATUS_RESPONSE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(timerReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         } else {
@@ -208,6 +224,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -223,5 +249,15 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(btnEnd.getVisibility() == VISIBLE) {
+            editor.putString("session_name", edtSessionName.getText().toString());
+            editor.apply();
+            Toast.makeText(MainActivity.this, "Session name saved", Toast.LENGTH_SHORT).show();
+        }
     }
 }

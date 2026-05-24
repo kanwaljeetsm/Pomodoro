@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -18,6 +19,8 @@ import java.time.LocalTime;
 import java.util.Locale;
 
 public class TimerService extends Service {
+
+    private static final String TAG = "TimerService";
 
     public static final String ACTION_TIMER_TICK = "com.kanwaljeetsm.pomodoro.TIMER_TICK";
     public static final String ACTION_TIMER_FINISHED = "com.kanwaljeetsm.pomodoro.TIMER_FINISHED";
@@ -35,8 +38,8 @@ public class TimerService extends Service {
     private static final int NOTIFICATION_ID = 1;
 
     private CountDownTimer countDownTimer;
-    private final long WORK_TIME = 25 * 60000;
-    private final long BREAK_TIME = 5 * 60000;
+    private final long WORK_TIME = 1 * 60000;
+    private final long BREAK_TIME = 1 * 60000;
     
     private long timeLeftInMillis = WORK_TIME;
     private String currentTimerType = TIMER_TYPE_WORK;
@@ -47,6 +50,7 @@ public class TimerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
             String action = intent.getAction();
+            Log.d(TAG, "onStartCommand: " + action);
             switch (action) {
                 case "START_WORK":
                     sessionName = intent.getStringExtra("SESSION_NAME");
@@ -114,6 +118,7 @@ public class TimerService extends Service {
                 timeLeftInMillis = WORK_TIME;
                 currentTimerType = TIMER_TYPE_WORK;
                 Intent intent = new Intent(ACTION_TIMER_FINISHED);
+                intent.setPackage(getPackageName());
                 sendBroadcast(intent);
                 stopForeground(true);
                 stopSelf();
@@ -129,7 +134,9 @@ public class TimerService extends Service {
     }
 
     private void sendStatusBroadcast(String action) {
+        Log.d(TAG, "Sending broadcast: " + action + " (isRunning=" + isTimerRunning + ")");
         Intent intent = new Intent(action);
+        intent.setPackage(getPackageName());
         intent.putExtra(EXTRA_TIME_LEFT, timeLeftInMillis);
         intent.putExtra(EXTRA_TIMER_TYPE, currentTimerType);
         intent.putExtra(EXTRA_IS_RUNNING, isTimerRunning);
