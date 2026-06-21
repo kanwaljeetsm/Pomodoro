@@ -27,7 +27,7 @@ public class TimerService extends Service {
     public static final String ACTION_TIMER_FINISHED = "com.kanwaljeetsm.pomodoro.TIMER_FINISHED";
     public static final String ACTION_REQUEST_STATUS = "com.kanwaljeetsm.pomodoro.REQUEST_STATUS";
     public static final String ACTION_STATUS_RESPONSE = "com.kanwaljeetsm.pomodoro.STATUS_RESPONSE";
-    
+
     public static final String EXTRA_TIME_LEFT = "extra_time_left";
     public static final String EXTRA_TIMER_TYPE = "extra_timer_type";
     public static final String EXTRA_IS_RUNNING = "extra_is_running";
@@ -39,9 +39,9 @@ public class TimerService extends Service {
     private static final int NOTIFICATION_ID = 1;
 
     private CountDownTimer countDownTimer;
-    private final long WORK_TIME = 25 * 60000;
-    private final long BREAK_TIME = 5 * 60000;
-    
+    private final long WORK_TIME = 1 * 60000;
+    private final long BREAK_TIME = 1 * 60000;
+
     private long timeLeftInMillis = WORK_TIME;
     private String currentTimerType = TIMER_TYPE_WORK;
     private String sessionName = "";
@@ -77,7 +77,7 @@ public class TimerService extends Service {
         timeLeftInMillis = WORK_TIME;
         isTimerRunning = true;
         mediaPlayerSession = MediaPlayer.create(this, R.raw.sessioncomplete);
-        
+
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, getNotification("Work Session Started"));
         sendStatusBroadcast(ACTION_TIMER_TICK);
@@ -105,7 +105,7 @@ public class TimerService extends Service {
         timeLeftInMillis = BREAK_TIME;
         isTimerRunning = true;
         mediaPlayerBreak = MediaPlayer.create(this, R.raw.breakcomplete);
-        
+
         startForeground(NOTIFICATION_ID, getNotification("Break Session Started"));
         sendStatusBroadcast(ACTION_TIMER_TICK);
 
