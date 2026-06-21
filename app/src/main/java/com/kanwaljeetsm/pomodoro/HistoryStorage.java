@@ -42,6 +42,7 @@ public class HistoryStorage {
         saveHistoryList(context, historyList);
     }
 
+    //used to update standalone txtNotes field
     public static void updateTxtNotes(Context context, int index, String newTxtNotes) {
         List<DataActivityHistory> historyList = loadHistory(context);
         if (index >= 0 && index < historyList.size()) {
