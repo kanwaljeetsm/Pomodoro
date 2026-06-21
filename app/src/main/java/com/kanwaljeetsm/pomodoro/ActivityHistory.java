@@ -25,6 +25,7 @@ public class ActivityHistory extends AppCompatActivity {
     private RecyclerView recyclerActivityHistory;
 
     private List<String> lstNotes = new ArrayList<>();
+    private List<String> lstTxtNotes = new ArrayList<>();
     private List<LocalTime> lstStartTime = new ArrayList<>();
     private List<LocalTime> lstEndTime = new ArrayList<>();
     private List<LocalDate> lstActivityDate = new ArrayList<>();
@@ -54,7 +55,7 @@ public class ActivityHistory extends AppCompatActivity {
         recyclerActivityHistory.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
 
         // 3. Setup Adapter and LayoutManager once
-        recyclerAdapterActivityHistory = new RecyclerAdapterActivityHistory(this, lstActivityDate, lstStartTime, lstEndTime, lstNotes, historyList);
+        recyclerAdapterActivityHistory = new RecyclerAdapterActivityHistory(this, lstActivityDate, lstStartTime, lstEndTime, lstNotes, historyList, lstTxtNotes);
         recyclerActivityHistory.setAdapter(recyclerAdapterActivityHistory);
         recyclerActivityHistory.setLayoutManager(new LinearLayoutManager(this));
     }
