@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
         }
         btnStart.setVisibility(GONE);
         btnEnd.setVisibility(VISIBLE);
+        edtSessionName.setEnabled(false);
     }
 
     private void stopTimerService() {
@@ -178,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
         txtTimer.setTextColor(isDark ? getResources().getColor(R.color.white) : getResources().getColor(R.color.black));
         btnStart.setVisibility(VISIBLE);
         btnEnd.setVisibility(GONE);
+        edtSessionName.setEnabled(true);
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")

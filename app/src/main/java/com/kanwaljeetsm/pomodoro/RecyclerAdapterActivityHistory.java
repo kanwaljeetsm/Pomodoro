@@ -26,6 +26,7 @@ import java.util.List;
 public class RecyclerAdapterActivityHistory extends RecyclerView.Adapter<RecyclerAdapterActivityHistory.ViewHolder> {
 
     List<String> lstNotes;
+    List<String> lstTxtNotes;
     private List<DataActivityHistory> historyList;
     List<LocalTime> lstStartTime;
     List<LocalTime> lstEndTime;
@@ -33,13 +34,14 @@ public class RecyclerAdapterActivityHistory extends RecyclerView.Adapter<Recycle
     Context context;
     HistoryStorage histObj;
 
-    public RecyclerAdapterActivityHistory(Context context, List<LocalDate> lstActivityDate, List<LocalTime> lstStartTime, List<LocalTime> lstEndTime, List<String> lstNotes, List<DataActivityHistory> historyList) {
+    public RecyclerAdapterActivityHistory(Context context, List<LocalDate> lstActivityDate, List<LocalTime> lstStartTime, List<LocalTime> lstEndTime, List<String> lstNotes, List<DataActivityHistory> historyList, List<String> lstTxtNotes) {
         this.context = context;
         this.lstActivityDate = lstActivityDate;
         this.lstEndTime = lstEndTime;
         this.lstStartTime = lstStartTime;
         this.lstNotes = lstNotes;
         this.historyList = historyList;
+        this.lstTxtNotes = lstTxtNotes;
     }
 
     @NonNull
@@ -64,11 +66,13 @@ public class RecyclerAdapterActivityHistory extends RecyclerView.Adapter<Recycle
             lstStartTime.add(item.getStartTime());
             lstEndTime.add(item.getEndTime());
             lstNotes.add(item.getNotes());
+            lstTxtNotes.add(item.getTxtNotes());
 
             holder.txtDate.setText(item.getActivityDate().toString());
             holder.txtStartTime.setText(item.getStartTime().toString().replaceAll("\\..*", ""));
             holder.txtEndTime.setText(item.getEndTime().toString().replaceAll("\\..*", ""));
             holder.txtNotes.setText(item.getNotes());
+            holder.edtNotes.setText(item.getTxtNotes());
             holder.llNotesHeader.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -82,6 +86,12 @@ public class RecyclerAdapterActivityHistory extends RecyclerView.Adapter<Recycle
                         holder.imgNotesDropdown.setImageDrawable(context.getResources().getDrawable(R.drawable.outline_arrow_drop_down_24));
                         hideKeyboard(view);
                     }
+                }
+            });
+            holder.btnNotesSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    histObj.updateTxtNotes(context, position, holder.edtNotes.getText().toString());
                 }
             });
         }

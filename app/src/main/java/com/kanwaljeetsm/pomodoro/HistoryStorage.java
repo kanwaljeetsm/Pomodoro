@@ -39,9 +39,19 @@ public class HistoryStorage {
     public static void saveHistory(Context context, DataActivityHistory newData) {
         List<DataActivityHistory> historyList = loadHistory(context);
         historyList.add(0, newData); // Add to the top of the list
+        saveHistoryList(context, historyList);
+    }
 
+    public static void updateTxtNotes(Context context, int index, String newTxtNotes) {
+        List<DataActivityHistory> historyList = loadHistory(context);
+        if (index >= 0 && index < historyList.size()) {
+            historyList.get(index).setTxtNotes(newTxtNotes);
+            saveHistoryList(context, historyList);
+        }
+    }
+
+    private static void saveHistoryList(Context context, List<DataActivityHistory> historyList) {
         String json = gson.toJson(historyList);
-
         try (FileOutputStream fos = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE)) {
             fos.write(json.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
