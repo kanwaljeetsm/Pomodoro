@@ -8,7 +8,8 @@ public class DataActivityHistory {
 
     private LocalDate activityDate;
     private LocalTime startTime, endTime;
-    private String notes;
+    private String notes, txtNotes;
+
 
     public LocalDate getActivityDate() {
         return activityDate;
@@ -40,5 +41,13 @@ public class DataActivityHistory {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getTxtNotes() {
+        return txtNotes;
+    }
+
+    public void setTxtNotes(String txtNotes) {
+        this.txtNotes = txtNotes;
     }
 }
