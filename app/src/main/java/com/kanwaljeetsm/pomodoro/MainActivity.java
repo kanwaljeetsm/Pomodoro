@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
         }
         btnStart.setVisibility(GONE);
         btnEnd.setVisibility(VISIBLE);
+        edtSessionName.setEnabled(false);
     }
 
     private void resetUI() {
@@ -266,7 +267,6 @@ public class MainActivity extends AppCompatActivity {
         if(btnEnd.getVisibility() == VISIBLE) {
             editor.putString("session_name", edtSessionName.getText().toString());
             editor.apply();
-            Toast.makeText(MainActivity.this, "Session name saved", Toast.LENGTH_SHORT).show();
         }
     }
 }
