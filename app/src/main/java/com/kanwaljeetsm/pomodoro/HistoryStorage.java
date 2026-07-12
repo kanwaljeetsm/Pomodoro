@@ -80,7 +80,7 @@ public class HistoryStorage {
     }
 
     private static class LocalDateAdapter implements JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
-        private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         @Override
         public JsonElement serialize(LocalDate src, Type typeOfSrc, JsonSerializationContext context) {
