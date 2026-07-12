@@ -239,6 +239,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        isDark = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+        if (isDark) {
+            menu.findItem(R.id.iconActivityHistory).setIcon(getDrawable(R.drawable.baseline_history_24_white));
+        }
+        else {
+            menu.findItem(R.id.iconActivityHistory).setIcon(getDrawable(R.drawable.baseline_history_24));
+        }
         return true;
     }
 

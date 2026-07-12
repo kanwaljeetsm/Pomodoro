@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class RecyclerAdapterActivityHistory extends RecyclerView.Adapter<RecyclerAdapterActivityHistory.ViewHolder> {
@@ -65,11 +66,19 @@ public class RecyclerAdapterActivityHistory extends RecyclerView.Adapter<Recycle
             lstNotes.add(item.getNotes());
             lstTxtNotes.add(item.getTxtNotes());
 
-            holder.txtDate.setText(item.getActivityDate().toString());
+            holder.txtDate.setText(item.getActivityDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).toString());
             holder.txtStartTime.setText(item.getStartTime().toString().replaceAll("\\..*", ""));
             holder.txtEndTime.setText(item.getEndTime().toString().replaceAll("\\..*", ""));
             holder.txtNotes.setText(item.getNotes());
             holder.edtNotes.setText(item.getTxtNotes());
+
+            try {
+            if(!(String.valueOf(lstActivityDate.get(position)).equals(String.valueOf(lstActivityDate.get(position-1))))) {
+                holder.txtDivDate.setText(lstActivityDate.get(position).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).toString());
+                holder.llDivDate.setVisibility(View.VISIBLE);
+            }
+            } catch (Exception e) {}
+
             holder.llNotesHeader.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -100,12 +109,14 @@ public class RecyclerAdapterActivityHistory extends RecyclerView.Adapter<Recycle
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView txtDate, txtStartTime, txtEndTime, txtNotes;
-        LinearLayout llNotesHeader;
+        TextView txtDate, txtStartTime, txtEndTime, txtNotes, txtDivDate;
+        LinearLayout llNotesHeader, llDivDate;
         EditText edtNotes;
         Button btnNotesSave;
         ImageButton imgNotesDropdown;
         RecyclerView recyclerView;
+        View div1, div2;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             txtDate = itemView.findViewById(R.id.txtDate);
@@ -117,6 +128,10 @@ public class RecyclerAdapterActivityHistory extends RecyclerView.Adapter<Recycle
             btnNotesSave = itemView.findViewById(R.id.btnNotesSave);
             imgNotesDropdown = itemView.findViewById(R.id.imgNotesDropdown);
             recyclerView = itemView.findViewById(R.id.recyclerActivityHistory);
+            txtDivDate = itemView.findViewById(R.id.txtDivDate);
+            div1 = itemView.findViewById(R.id.div1);
+            div2 = itemView.findViewById(R.id.div2);
+            llDivDate = itemView.findViewById(R.id.llDivDate);
         }
     }
     public static void hideKeyboard(View view) {
