@@ -2,8 +2,9 @@
 <resources>
     <color name="blackbg">#0F1014</color>
     <color name="black">#000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="white">#FFFFFF</color>
     <color name="blue">#2196F3</color>
     <color name="green">#4CAF50</color>
     <color name="grey">#43555D</color>
+    <color name="greycircularbg">#CCCCCC</color>
 </resources>

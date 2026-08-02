@@ -34,7 +34,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
+import com.uzairiqbal.circulartimerview.CircularTimerView;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
     private Context context = MainActivity.this;
     private ImageView appDrawLogo;
     private ConstraintLayout main;
-    private TextView txtTimer;
     private Button btnStart, btnEnd;
     private EditText edtSessionName;
+    private CircularTimerView circularTimerView;
     private SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
     private boolean isDark;
@@ -76,10 +76,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         appDrawLogo = findViewById(R.id.appDrawLogo);
-        txtTimer = findViewById(R.id.txtTimer);
         main = findViewById(R.id.main);
         btnStart = findViewById(R.id.btnStart);
         btnEnd = findViewById(R.id.btnEnd);
+        circularTimerView = findViewById(R.id.progress_circular);
         edtSessionName = findViewById(R.id.edtSessionName);
 
         sharedPref = getSharedPreferences("SessionName", Context.MODE_PRIVATE);
@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         themeSettings();
-        txtTimer.setText("25:00");
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,11 +163,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateUI(long timeLeft, String type) {
-        txtTimer.setText(String.format(Locale.US, "%02d:%02d", timeLeft / 60000, (timeLeft % 60000) / 1000));
         if (TimerService.TIMER_TYPE_WORK.equals(type)) {
-            txtTimer.setTextColor(getResources().getColor(R.color.blue));
+            circularTimerView.setMaxValue(100);
+            circularTimerView.setProgress(((float) timeLeft /(60000*25)*100));
+            circularTimerView.setText(String.format(Locale.US, "%02d:%02d", timeLeft / 60000, (timeLeft % 60000) / 1000));
+            circularTimerView.setBackgroundColor(getResources().getColor(R.color.blue));
         } else {
-            txtTimer.setTextColor(getResources().getColor(R.color.green));
+            circularTimerView.setMaxValue(100);
+            circularTimerView.setProgress(((float) timeLeft/(60000*5))*100f);
+            circularTimerView.setText(String.format(Locale.US, "%02d:%02d", timeLeft / 60000, (timeLeft % 60000) / 1000));
+            circularTimerView.setBackgroundColor(getResources().getColor(R.color.green));
         }
         btnStart.setVisibility(GONE);
         btnEnd.setVisibility(VISIBLE);
@@ -176,8 +180,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void resetUI() {
-        txtTimer.setText("25:00");
-        txtTimer.setTextColor(isDark ? getResources().getColor(R.color.white) : getResources().getColor(R.color.black));
+        circularTimerView.setText("25:00");
+        circularTimerView.setProgress(100);
+        circularTimerView.setBackgroundColor(getResources().getColor(R.color.blue));
         btnStart.setVisibility(VISIBLE);
         btnEnd.setVisibility(GONE);
         edtSessionName.setEnabled(true);
@@ -220,9 +225,13 @@ public class MainActivity extends AppCompatActivity {
         if (isDark) {
             appDrawLogo.setImageDrawable(getDrawable(R.drawable.drawpomoblack));
             main.setBackgroundColor(getColor(R.color.blackbg));
+            circularTimerView.setProgressColor(getResources().getColor(R.color.white));
+            circularTimerView.setProgressBackgroundColor(getResources().getColor(R.color.greycircularbg));
         } else {
             appDrawLogo.setImageDrawable(getDrawable(R.drawable.drawpomo));
             main.setBackgroundColor(getColor(R.color.white));
+            circularTimerView.setProgressColor(getResources().getColor(R.color.black));
+            circularTimerView.setProgressBackgroundColor(getResources().getColor(R.color.greycircularbg));
         }
     }
 
