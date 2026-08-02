@@ -39,8 +39,8 @@ public class TimerService extends Service {
     private static final int NOTIFICATION_ID = 1;
 
     private CountDownTimer countDownTimer;
-    private final long WORK_TIME = 1 * 60000;
-    private final long BREAK_TIME = 1 * 60000;
+    private final long WORK_TIME = 25 * 60000;
+    private final long BREAK_TIME = 5 * 60000;
 
     private long timeLeftInMillis = WORK_TIME;
     private String currentTimerType = TIMER_TYPE_WORK;
