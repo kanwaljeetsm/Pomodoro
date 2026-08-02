@@ -78,7 +78,7 @@
             <LinearLayout
                 android:id="@+id/llAddNotes"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:background="@drawable/rounded"
                 android:backgroundTint="@color/white"
@@ -122,7 +122,8 @@
                     android:background="@drawable/rounded_multiline_box"
                     android:ems="10"
                     android:hint="Notes..."
-                    android:inputType="text"
+                    android:inputType="textMultiLine"
+                    android:gravity="top|start"
                     android:textColor="@color/black"
                     android:textSize="14sp"
                     android:visibility="gone" />
