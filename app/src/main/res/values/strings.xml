@@ -5,4 +5,5 @@
     <string name="strEndTime">End:</string>
     <string name="strDefault">My Pomodoro Session</string>
     <string name="strNotificationPopup">"Notification permission is required for the timer to work in background"</string>
+    <string name="strTxtEmpty">Nothing to Show… Start Working!</string>
 </resources>
