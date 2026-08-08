@@ -173,7 +173,7 @@ public class TimerService extends Service {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Timer Service Channel",
-                    NotificationManager.IMPORTANCE_LOW
+                    NotificationManager.IMPORTANCE_DEFAULT
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
@@ -190,7 +190,7 @@ public class TimerService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Pomodoro Timer")
                 .setContentText(contentText)
-                .setSmallIcon(R.mipmap.pomo)
+                .setSmallIcon(R.drawable.drawnotificationtimer)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
