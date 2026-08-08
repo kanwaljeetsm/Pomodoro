@@ -190,7 +190,7 @@ public class TimerService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Pomodoro Timer")
                 .setContentText(contentText)
-                .setSmallIcon(R.mipmap.pomo)
+                .setSmallIcon(R.drawable.drawnotificationtimer)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)

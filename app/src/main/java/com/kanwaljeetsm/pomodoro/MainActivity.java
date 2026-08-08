@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startTimerService();
             } else {
-                Toast.makeText(this, "Notification permission is required for the timer to work in background", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.strNotificationPopup, Toast.LENGTH_SHORT).show();
             }
         }
     }

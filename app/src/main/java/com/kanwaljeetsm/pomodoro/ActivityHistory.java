@@ -3,7 +3,9 @@ package com.kanwaljeetsm.pomodoro;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +32,7 @@ public class ActivityHistory extends AppCompatActivity {
     private List<LocalTime> lstEndTime = new ArrayList<>();
     private List<LocalDate> lstActivityDate = new ArrayList<>();
     private List<DataActivityHistory> historyList = Collections.emptyList();
+    private TextView txtEmpty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +55,17 @@ public class ActivityHistory extends AppCompatActivity {
 
         // 2. Initialize RecyclerView once
         recyclerActivityHistory = findViewById(R.id.recyclerActivityHistory);
+        txtEmpty = findViewById(R.id.txtEmpty);
         recyclerActivityHistory.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
 
         // 3. Setup Adapter and LayoutManager once
         recyclerAdapterActivityHistory = new RecyclerAdapterActivityHistory(this, lstActivityDate, lstStartTime, lstEndTime, lstNotes, historyList, lstTxtNotes);
         recyclerActivityHistory.setAdapter(recyclerAdapterActivityHistory);
         recyclerActivityHistory.setLayoutManager(new LinearLayoutManager(this));
+
+        if(recyclerAdapterActivityHistory.getItemCount() == 0) {
+            txtEmpty.setVisibility(View.VISIBLE);
+            recyclerActivityHistory.setVisibility(View.GONE);
+        }
     }
 }
