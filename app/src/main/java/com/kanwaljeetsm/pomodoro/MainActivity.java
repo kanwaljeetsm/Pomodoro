@@ -82,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
         circularTimerView = findViewById(R.id.progress_circular);
         edtSessionName = findViewById(R.id.edtSessionName);
 
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        isDark = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+
         sharedPref = getSharedPreferences("SessionName", Context.MODE_PRIVATE);
         editor = sharedPref.edit();
 
@@ -249,12 +252,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        isDark = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
         if (isDark) {
+            menu.findItem(R.id.iconScreenAwake).setIcon(getDrawable(R.drawable.outline_wb_twilight_2_24));
             menu.findItem(R.id.iconActivityHistory).setIcon(getDrawable(R.drawable.baseline_history_24_white));
         }
         else {
+            menu.findItem(R.id.iconScreenAwake).setIcon(getDrawable(R.drawable.outline_wb_twilight_2_24_black));
             menu.findItem(R.id.iconActivityHistory).setIcon(getDrawable(R.drawable.baseline_history_24));
         }
         return true;
@@ -265,6 +268,30 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.iconActivityHistory) {
             Intent intent = new Intent(this, ActivityHistory.class);
             startActivity(intent);
+            return true;
+        }
+
+        if (item.getItemId() == R.id.iconScreenAwake && main.getKeepScreenOn()) {
+            main.setKeepScreenOn(false);
+            Toast.makeText(MainActivity.this, R.string.strScreenSleep, Toast.LENGTH_SHORT).show();
+            if(isDark) {
+                item.setIcon(getDrawable(R.drawable.outline_wb_twilight_2_24));
+            }
+            else {
+                item.setIcon(getDrawable(R.drawable.outline_wb_twilight_2_24_black));
+            }
+            return true;
+        }
+
+        if (item.getItemId() == R.id.iconScreenAwake && !main.getKeepScreenOn()) {
+            main.setKeepScreenOn(true);
+            Toast.makeText(MainActivity.this, R.string.strScreenAwake, Toast.LENGTH_SHORT).show();
+            if(isDark) {
+                item.setIcon(getDrawable(R.drawable.baseline_wb_twilight_24));
+            }
+            else {
+                item.setIcon(getDrawable(R.drawable.outline_wb_twilight_24_dark));
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
