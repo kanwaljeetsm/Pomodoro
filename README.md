@@ -15,7 +15,8 @@
 4. Set Session name to record the activity done
 5. Add detailed notes to mention the activities covered/pending in the session
 6. Recorded date-time of the session divided on daily basis on History Page
-7. Light/Dark theme based on system settings
+7. Screen Awake option to keep screen lit on Homepage (turned off by default)
+8. Light/Dark theme based on system settings
 
 <h3><u>Bugs:</u></h3>
 You tell me...😛
